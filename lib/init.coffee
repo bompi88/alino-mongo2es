@@ -1,11 +1,14 @@
 if Meteor.isServer
   Meteor.startup ->
-    if not process.env.elasticsearchHost? and not Meteor.settings.elasticsearchHost?
-      error = "elasticsearch host was not set, you must set it up!!!"
+    if not process.env.elasticsearchHost? and not Meteor.settings.elasticsearchHost and not process.env.ES_PORT_9200_TCP_ADDR?
+      error = "elasticsearch host was not set, you must set it up, or link a elasticsearch container!!!"
       log.error(error)
       throw new Meteor.Error(error)
     else
       Meteor.settings.elasticsearchHost = process.env.elasticsearchHost or Meteor.settings.elasticsearchHost
+      Meteor.settings.elasticsearchHost = Meteor.settings.elasticsearchHost or 'http://' + process.env.ES_PORT_9200_TCP_ADDR + ':' + process.env.ES_PORT_9200_TCP_PORT
+      console.log 'ES host: ' + Meteor.settings.elasticsearchHost
+      console.log 'MONGO_URL: ' + process.env.MONGO_URL
 
     if not process.env.logitHost? and not Meteor.settings.logit?
       log.warn "logit host wasn't set. Logging into console only"
